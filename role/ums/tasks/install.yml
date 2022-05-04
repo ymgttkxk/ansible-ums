@@ -1,0 +1,108 @@
+---
+- name: install base packages
+  apt:
+    name:
+    - mediainfo
+    - dcraw
+    - vlc
+    - mplayer
+    - mencoder
+    - default-jre
+    - unzip
+    state: latest
+    update_cache: yes
+  become: yes
+
+- name: install Universal Media Server
+  unarchive:
+    src: "https://github.com/UniversalMediaServer/UniversalMediaServer/releases/download/{{ ums_ver }}/UMS-{{ ums_ver }}-{{ ums_arch }}.tgz"
+    dest: "/opt"
+    remote_src: yes
+  become: yes
+
+- name: link ums
+  file:
+    src: "/opt/ums-{{ ums_ver }}"
+    dest: "/opt/ums"
+    state: link
+  become: yes
+  
+- name: add group ums
+  group:
+    name: ums
+    state: present
+    system: true
+  become: true
+
+- name: add user ums
+  user:
+    name: ums
+    group: ums
+    system: true
+  become: true
+
+- name: mkdir .config/UMS
+  file:
+    path: "/home/ums/.config/UMS"
+    state: directory
+    owner: ums
+    group: ums
+    mode: 0755
+  become: yes
+
+- name: mkdir /var/log/UMS
+  file:
+    path: "/var/log/UMS"
+    state: directory
+    owner: ums
+    group: ums
+    mode: 0755
+  become: yes
+
+- name: copy UMS.conf
+  copy:
+    src: "/opt/ums/UMS.conf"
+    dest: "/home/ums/.config/UMS/UMS.conf"
+    remote_src: yes
+    owner: ums
+    group: ums
+    mode: 0644
+  become: yes
+
+- name: set Language in UMS.conf
+  lineinfile:
+    path: "/home/ums/.config/UMS/UMS.conf"
+    regexp: '^language '
+    line: language = ja
+  become: yes
+
+- name: set folders in UMS.conf
+  lineinfile:
+    path: "/home/ums/.config/UMS/UMS.conf"
+    regexp: '^folders '
+    line: folders = /mnt/dlna
+  become: yes
+
+- name: set log level in UMS.conf
+  lineinfile:
+    path: "/home/ums/.config/UMS/UMS.conf"
+    regexp: '^log_level '
+    line: log_level = INFO
+  become: yes
+
+- name: copy ums.service
+  copy:
+    src: ums.service
+    dest: "/etc/systemd/system/ums.service"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: Universal Media Server
+  systemd:
+    state: restarted
+    name: ums.service
+    enabled: yes
+  become: true
+

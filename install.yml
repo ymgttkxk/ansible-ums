@@ -1,0 +1,7 @@
+# USAGE:
+#  ansible-playbook -i inventory install.yml --ask-become-pass
+---
+- hosts: ums
+  gather_facts: false
+  roles:
+  - role: role/ums

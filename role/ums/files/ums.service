@@ -1,0 +1,15 @@
+[Unit]
+Description=Universal Media Server
+After=syslog.target
+
+[Service]
+Type=simple
+User=ums
+Group=ums
+ExecStart=/opt/ums/UMS.sh
+TimeoutStartSec=0
+RemainAfterExit=yes
+Environment="UMS_MAX_MEMORY=1024M"
+
+[Install]
+WantedBy=multi-user.target

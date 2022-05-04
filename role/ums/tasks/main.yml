@@ -1,0 +1,7 @@
+---
+- name: add storage for UMS
+  include_tasks: storage-lxd.yml
+
+- name: install UMS packages
+  include_tasks: install.yml
+

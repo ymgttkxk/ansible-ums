@@ -1,0 +1,7 @@
+---
+- name: add storage for UMS
+  become: yes
+  command: "lxc config device add {{ inventory_hostname }} dlna disk source={{ src_path }} path={{ ums_path }}"
+  delegate_to: localhost
+  failed_when: no
+
